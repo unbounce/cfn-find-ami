@@ -7,7 +7,7 @@
       include_vars:
         dir: "vars"
         name: "config"
-    - name: ensure stack exists
+    - name: ensure stack is deleted
       cloudformation:
         stack_name: "{{ config.project_name }}-{{ config.env_label }}"
         region: "{{ item }}"
