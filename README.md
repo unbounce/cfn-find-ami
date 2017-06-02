@@ -47,3 +47,9 @@ get a lambda stack running without extra steps.
 * The Lambda function looks for tags on an AMI in an opinionated naming
 scheme.
 
+## License
+
+tl;dr MIT License.
+
+See [LICENSE](LICENSE) for more details.
+
