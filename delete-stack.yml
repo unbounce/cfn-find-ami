@@ -11,7 +11,7 @@
       cloudformation:
         stack_name: "{{ config.project_name }}-{{ config.env_label }}"
         region: "{{ item }}"
-        state: present
+        state: absent
         template: "{{ playbook_dir }}/cfn-template.yml"
         template_parameters:
           EnvironmentLabel: "{{ config.env_label }}"
