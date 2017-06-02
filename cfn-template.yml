@@ -56,9 +56,11 @@ Resources:
             if ami_id is None:
               cfnresponse.send(event, context, cfnresponse.FAILED, {}, "")
             else:
-              physical_id = ami_id
+              if ami_id != "":
+                # deletes don't get logged out b/c there's no AMI
+                print("AMI returned for project: {}, environment: {}, ID: {}".format(project, environment, ami_id))
               data = { "ami_id": ami_id }
-              print("AMI returned for project: {}, environment: {}, ID: {}".format(project, environment, ami_id))
+              physical_id = ami_id
               cfnresponse.send(event, context, cfnresponse.SUCCESS, data, physical_id)
       Description: "[CFN] Finds the AMI for a given project/environment"
       Environment:
