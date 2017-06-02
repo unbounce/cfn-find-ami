@@ -11,6 +11,5 @@ project_name: 'cfn-find-ami'
 
 # Sets the environment label that will be passed to the CloudFormation
 # stack.  This is optional and will have a sane non-production default
-default_env_label: 'dev'
-env_label: "{{ environment_label | default(default_env_label) }}"
+env_label: "{{ environment_label | default('dev') }}"
 
