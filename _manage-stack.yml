@@ -1,0 +1,20 @@
+---
+- name: ensure settings are loaded
+  include_vars:
+    dir: "vars"
+    name: "config"
+- name: ensure stack is present or absent
+  cloudformation:
+    stack_name: "{{ config.project_name }}-{{ config.env_label }}"
+    region: "{{ item }}"
+    state: "{{ stack_status }}"
+    template: "{{ playbook_dir }}/cfn-template.yml"
+    template_parameters:
+      EnvironmentLabel: "{{ config.env_label }}"
+      ProjectName: "{{ config.project_name }}"
+      LambdaTimeoutInSeconds: "{{ config.lambda_timeout_in_seconds }}"
+    tags:
+      project: "{{ config.project_name }}"
+      environment: "{{ config.env_label }}"
+  with_items: "{{ config.stack_regions }}"
+
