@@ -49,7 +49,7 @@ Resources:
   FindAmiCustomResource:
     Type: Custom::FindAmiByProjectEnv
     Properties:
-      Service:
+      ServiceToken: !ImportValue "cfn:find-ami:production:arn"
       Project: !Ref ProjectName
       Environment: !Ref EnvironmentName
 ```
