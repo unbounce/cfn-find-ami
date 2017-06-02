@@ -1,0 +1,16 @@
+---
+#
+# General project settings that have no other place to go
+#
+
+# The name of the project.  This is used by CloudFormation to create
+# the stack name, as well as setup tagging.  It should be unique
+# within your AWS environment.
+project_name: 'cfn-find-ami'
+
+
+# Sets the environment label that will be passed to the CloudFormation
+# stack.  This is optional and will have a sane non-production default
+default_env_label: 'dev'
+env_label: "{{ environment_label | default(default_env_label) }}"
+

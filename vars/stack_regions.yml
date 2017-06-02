@@ -1,0 +1,19 @@
+---
+# AWS Regions where the stack is launched
+# These regions must support Lambda
+# GovCloud is deliberately omitted.  Fork repo if you need it enabled.
+
+stack_regions:
+  - us-east-1
+  - us-east-2
+  - us-west-1
+  - us-west-2
+# - us-gov-west-1   # deliberately omitted.  Fork repo if needed
+  - eu-west-1
+  - eu-west-2
+  - eu-central-1
+  - ap-northeast-1
+  - ap-northeast-2
+  - ap-southeast-1
+  - ap-southeast-2
+  - ap-south-1

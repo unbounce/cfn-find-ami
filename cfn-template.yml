@@ -1,0 +1,102 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Custom CFN resource to return an AMI ID for a project/env"
+
+Parameters:
+  EnvironmentLabel:
+    Type: String
+    Description: "The label for this environment"
+  LambdaTimeoutInSeconds:
+    Type: Number
+    Description: "Maximum time the lambda should run before it times out"
+    Default: 60
+  ProjectName:
+    Type: String
+    Description: "The name of this project"
+
+Resources:
+  LambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ZipFile: !Sub |
+          import boto3
+          import cfnresponse
+
+          def find_ami(project, environment):
+            ec2 = boto3.client('ec2')
+            ami_id = None
+
+            filters = [
+              { 'Name': 'state', 'Values': ['available'] },
+              { 'Name': 'tag:project', 'Values': [project] },
+              { 'Name': 'tag:environment', 'Values': [environment] },
+            ]
+            result = ec2.describe_images(Owners=['self'], Filters=filters)
+            images = sorted(result['Images'], key=lambda k: k['CreationDate'])
+
+            if len(images) > 0:
+              ami_id = images[-1]['ImageId']
+
+            return ami_id
+
+          def lambda_handler(event, context):
+            request_type = event['RequestType']
+            project = event['ResourceProperties']['Project']
+            environment = event['ResourceProperties']['Environment']
+            ami_id = ""
+
+            if request_type == 'Create':
+              ami_id = find_ami(project, environment)
+            elif request_type == 'Update':
+              ami_id = find_ami(project, environment)
+            else:
+              pass
+
+            if ami_id is None:
+              cfnresponse.send(event, context, cfnresponse.FAILED, {}, "")
+            else:
+              physical_id = ami_id
+              data = { "ami_id": ami_id }
+              print("AMI returned for project: {}, environment: {}, ID: {}".format(project, environment, ami_id))
+              cfnresponse.send(event, context, cfnresponse.SUCCESS, data, physical_id)
+      Description: "[CFN] Finds the AMI for a given project/environment"
+      Environment:
+        Variables:
+          PROJECT_NAME: !Ref ProjectName
+          ENV_LABEL: !Ref EnvironmentLabel
+      Handler: "index.lambda_handler"
+      MemorySize: 128   # MB
+      Role: !GetAtt LambdaIAMRole.Arn
+      Runtime: "python3.6"
+      Timeout: !Ref LambdaTimeoutInSeconds
+
+  LambdaIAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      Path: "/cfn-custom-resources/"
+      Policies:
+        - PolicyName: ro-allow-ami-discovery    # ro = readonly
+          PolicyDocument:
+            Statement:
+             - Effect: Allow
+               Action:
+                 - ec2:DescribeImageAttribute
+                 - ec2:DescribeImages
+               Resource: "*"
+
+Outputs:
+  LambdaFnArn:
+    Description: "ARN of the lambda function"
+    Value: !GetAtt LambdaFunction.Arn
+    Export:
+      Name: !Sub "cfn:find-ami:${EnvironmentLabel}:arn"
+

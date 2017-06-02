@@ -1,0 +1,28 @@
+---
+- hosts: all
+  gather_facts: no
+  connection: local
+  tasks:
+    - name: load settings files
+      include_vars:
+        file: "{{ item }}.yml"
+        name: 'config'
+      with_items:
+        - 'stack_regions'
+        - 'lambda_settings'
+        - 'general_settings'
+    - name: ensure stack exists
+      cloudformation:
+        stack_name: "{{ config.project_name }}"
+        region: "{{ item }}"
+        state: present
+        template: "{{ playbook_dir }}/cfn-template.yml"
+        template_parameters:
+          EnvironmentLabel: "{{ config.env_label }}"
+          ProjectName: "{{ project_name }}"
+          LambdaTimeoutInSeconds: "{{ config.lambda_timeout_in_seconds }}"
+        tags:
+          project: "{{ config.project_name }}"
+          environment: "{{ config.env_label }}"
+      with_items: "{{ config.stack_regions }}"
+
