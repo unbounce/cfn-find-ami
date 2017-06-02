@@ -92,6 +92,16 @@ Resources:
                  - ec2:DescribeImageAttribute
                  - ec2:DescribeImages
                Resource: "*"
+        - PolicyName: "basic-lambda-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*"
 
 Outputs:
   LambdaFnArn:
