@@ -51,10 +51,12 @@ Resources:
             elif request_type == 'Update':
               ami_id = find_ami(project, environment)
             else:
-              pass
+              pass  # Other commands, eg: Delete
 
             if ami_id is None:
               cfnresponse.send(event, context, cfnresponse.FAILED, {}, "")
+            elif ami_id == "":
+                pass  # handle Delete - Do nothing
             else:
               if ami_id != "":
                 # deletes don't get logged out b/c there's no AMI
