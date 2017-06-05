@@ -5,5 +5,5 @@
   tasks:
     - include: "_manage-stack.yml"
       vars:
-        stack_status: present
+        stack_status: absent
 

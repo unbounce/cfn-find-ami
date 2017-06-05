@@ -56,9 +56,11 @@ Resources:
             if ami_id is None:
               cfnresponse.send(event, context, cfnresponse.FAILED, {}, "")
             else:
-              physical_id = ami_id
+              if ami_id != "":
+                # deletes don't get logged out b/c there's no AMI
+                print("AMI returned for project: {}, environment: {}, ID: {}".format(project, environment, ami_id))
               data = { "ami_id": ami_id }
-              print("AMI returned for project: {}, environment: {}, ID: {}".format(project, environment, ami_id))
+              physical_id = ami_id
               cfnresponse.send(event, context, cfnresponse.SUCCESS, data, physical_id)
       Description: "[CFN] Finds the AMI for a given project/environment"
       Environment:
@@ -92,11 +94,10 @@ Resources:
                  - ec2:DescribeImageAttribute
                  - ec2:DescribeImages
                Resource: "*"
-        - PolicyName: "basic-lambda-policy"
+        - PolicyName: wo-lambda-cloudwatch-logs
           PolicyDocument:
-            Version: "2012-10-17"
             Statement:
-              - Effect: "Allow"
+              - Effect: Allow
                 Action:
                   - "logs:CreateLogGroup"
                   - "logs:CreateLogStream"

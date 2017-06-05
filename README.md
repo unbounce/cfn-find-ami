@@ -37,6 +37,34 @@ The ability to specify `environment_label` means your CFN custom
 resource can support updates and configuration tweaks without breaking
 existing infrastructure.
 
+## Using this Custom Resource
+
+This lambda function can be used as a custom resource in another
+CloudFormation stack.  Add the following in your template:
+
+```
+Resources:
+  ... other resources ...
+
+  FindAmiCustomResource:
+    Type: Custom::FindAmiByProjectEnv
+    Properties:
+      ServiceToken: !ImportValue "cfn:find-ami:production:arn"
+      Project: !Ref ProjectName
+      Environment: !Ref EnvironmentName
+```
+
+This assumes that you have two stack parameters: `ProjectName` and
+`EnvironmentName`.
+
+The result of the custom resource will be retrieved using the `Fn::GetAtt`
+function:
+
+```
+  ... InstanceProfile definition ...
+    ImageId: !GetAtt FindAmiCustomResource.ami_id
+```
+
 ## Caveats / Things to Consider
 
 * The Ansible playbook launches the stack in all regions where Lambda is
